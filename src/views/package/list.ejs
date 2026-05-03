@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <% packages.forEach(pkg => { %>
+        <div class="card mb-2 p-2">
+            <h5><%= pkg.name %></h5>
+            <p>Price: <%= pkg.price %></p>
+            <p><%= pkg.description %></p>
+        </div>
+    <% }) %>
+</body>
+</html>

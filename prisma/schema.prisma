@@ -95,3 +95,50 @@ model ApiKey {
 
   @@map("api_keys")
 }
+
+model Package {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  @@map("packages")
+}
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+}
+model Subscription {
+  id           String    @id @default(uuid())
+  user_id      String
+  package_id   String
+  status       SubscriptionStatus @default(PENDING)
+  store_id     String?   
+  starts_at    DateTime
+  expires_at   DateTime
+  is_active    Boolean   @default(true)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  @@index([user_id])
+  @@index([package_id])
+  @@index([is_active])
+
+  @@map("subscriptions")
+}
+
+model Store {
+  id            String    @id @default(uuid())
+  name          String
+  address       String
+  profile_image String?
+  description   String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@map("stores")
+}

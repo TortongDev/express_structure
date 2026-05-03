@@ -2,7 +2,7 @@ import express     from 'express';
 import cookieParser from 'cookie-parser';
 import authRoute    from './routes/auth.ejs.route.js';
 import requireSession from './middlewares/requireSession.js';
-
+import packageRoute from './routes/package.ejs.route.js';
 const EJS_APP = express();
 
 EJS_APP.set('view engine', 'ejs');
@@ -12,6 +12,7 @@ EJS_APP.use(cookieParser());
 
 // ── Auth routes (public — no session required) ────────────────────────────────
 EJS_APP.use('/auth', authRoute);
+EJS_APP.use('/package', packageRoute);
 
 // ── Protected routes (session required) ──────────────────────────────────────
 EJS_APP.get('/', requireSession, (req, res) => res.redirect('/dashboard'));

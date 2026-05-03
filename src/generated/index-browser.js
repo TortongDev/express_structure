@@ -159,6 +159,52 @@ exports.Prisma.RefreshTokenScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.ApiKeyScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  key_prefix: 'key_prefix',
+  name: 'name',
+  description: 'description',
+  is_active: 'is_active',
+  created_by: 'created_by',
+  last_used_at: 'last_used_at',
+  expires_at: 'expires_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.PackageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.SubscriptionScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  package_id: 'package_id',
+  status: 'status',
+  store_id: 'store_id',
+  starts_at: 'starts_at',
+  expires_at: 'expires_at',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.StoreScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  address: 'address',
+  profile_image: 'profile_image',
+  description: 'description',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -167,6 +213,11 @@ exports.Prisma.SortOrder = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 exports.UserStatus = exports.$Enums.UserStatus = {
   PENDING: 'PENDING',
@@ -181,11 +232,22 @@ exports.Role = exports.$Enums.Role = {
   PENDING: 'PENDING'
 };
 
+exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED',
+  PENDING: 'PENDING'
+};
+
 exports.Prisma.ModelName = {
   UserPending: 'UserPending',
   User: 'User',
   UserLogin: 'UserLogin',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  ApiKey: 'ApiKey',
+  Package: 'Package',
+  Subscription: 'Subscription',
+  Store: 'Store'
 };
 
 /**
