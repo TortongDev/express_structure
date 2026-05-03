@@ -1,0 +1,6 @@
+// API Controllers
+// Each file exports handler functions that return res.json()
+// Reuse services from src/services/ — do NOT put business logic here
+//
+// Example:
+//   export { apiLogin, apiLogout, apiRefresh } from './auth.api.controller.js';

@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+enum Role {
+  STAFF
+  ADMIN
+  PENDING
+}
+enum UserStatus {
+  PENDING
+  REJECTED
+  ACTIVE
+  APPROVED
+}
+model UserPending {
+  id             String     @id @default(uuid())
+  email          String     @unique
+  username       String     @unique
+  firstname      String
+  lastname       String
+  password_hash  String
+  is_user_status UserStatus @default(PENDING)
+  role           Role       @default(PENDING)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+
+  @@index([is_user_status])
+  @@index([role])
+
+  @@map("users_pending")
+}
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  username      String   @unique
+  firstname     String
+  lastname      String
+  password_hash String
+  role          Role     @default(STAFF)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([role])
+
+  @@map("users")
+}
+
+model UserLogin {
+  id         String   @id @default(uuid())
+  user_id    String
+  date_login DateTime @default(now())
+  @@index([user_id])
+  @@map("users_login")
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  token      String   @unique
+  user_id    String
+  created_at DateTime @default(now())
+  updated_at DateTime  @updatedAt
+
+  @@index([user_id, token])
+  @@index([token])
+
+  @@map("refresh_tokens")
+}
+
+model ApiKey {
+  id          String    @id @default(uuid())
+  key         String    @unique               // cafei_live_xxxx — stored as SHA-256 hash
+  key_prefix  String                          // cafei_live_xxxx (first 16 chars, for display)
+  name        String                          // ชื่อระบบ เช่น "POS ร้าน A", "LINE OA"
+  description String?                         // หมายเหตุเพิ่มเติม
+  is_active   Boolean   @default(true)
+  created_by  String                          // user_id ของ admin ที่สร้าง
+  last_used_at DateTime?                      // อัพเดทเมื่อ key ถูกใช้
+  expires_at  DateTime?                       // null = ไม่หมดอายุ
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  @@index([key])
+  @@index([is_active])
+  @@index([created_by])
+
+  @@map("api_keys")
+}

@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STAFF
+  ADMIN
+  PENDING
+}
+
+enum UserStatus {
+  PENDING
+  REJECTED
+  ACTIVE
+  APPROVED
+}
+
+model UserPending {
+  id             String     @id @default(uuid())
+  email          String     @unique
+  username       String     @unique
+  firstname      String
+  lastname       String
+  password_hash  String
+  is_user_status UserStatus @default(PENDING)
+  role           Role       @default(PENDING)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+
+  @@index([is_user_status])
+  @@index([role])
+  @@map("users_pending")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  username      String   @unique
+  firstname     String
+  lastname      String
+  password_hash String
+  role          Role     @default(STAFF)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([role])
+  @@map("users")
+}
+
+model UserLogin {
+  id         String   @id @default(uuid())
+  user_id    String
+  date_login DateTime @default(now())
+
+  @@index([user_id])
+  @@map("users_login")
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  token      String   @unique
+  user_id    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([user_id, token])
+  @@index([token])
+  @@map("refresh_tokens")
+}
