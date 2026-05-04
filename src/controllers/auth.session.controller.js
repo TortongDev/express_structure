@@ -46,7 +46,8 @@ export const sessionLogin = async (req, res) => {
 
   // ดึง user และตรวจ password (ทำพร้อมกันไม่ได้เพราะต้องการ hash ก่อน)
   const user = await prisma.user.findUnique({ where: { username } }).catch(() => null);
-
+  console.log(user);
+  
   // Constant-time comparison เพื่อป้องกัน timing attack
   const valid = user
     ? await bcrypt.compare(password, user.password_hash).catch(() => false)

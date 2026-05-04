@@ -11,6 +11,7 @@
  */
 
 import express          from 'express';
+import layoutTemplate from "express-ejs-layouts"
 import { sessionMiddleware } from './lib/session.js';
 import requireSessionAuth    from './middlewares/requireSessionAuth.js';
 import authSessionRoute      from './routes/auth.session.route.js';
@@ -20,8 +21,9 @@ const EJS_SESSION_APP = express();
 
 EJS_SESSION_APP.set('view engine', 'ejs');
 EJS_SESSION_APP.set('views', './src/views');
+EJS_SESSION_APP.use(layoutTemplate);
 EJS_SESSION_APP.use(express.urlencoded({ extended: true }));
-
+EJS_SESSION_APP.set('layout', 'templates/layout');
 // ── Session middleware (Redis store, rolling TTL) ──────────────────────────────
 EJS_SESSION_APP.use(sessionMiddleware);
 
