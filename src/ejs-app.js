@@ -14,6 +14,7 @@ import express          from 'express';
 import { sessionMiddleware } from './lib/session.js';
 import requireSessionAuth    from './middlewares/requireSessionAuth.js';
 import authSessionRoute      from './routes/auth.session.route.js';
+import authSessionRoute      from './routes/package.route.js';
 
 const EJS_SESSION_APP = express();
 
@@ -26,6 +27,7 @@ EJS_SESSION_APP.use(sessionMiddleware);
 
 // ── Auth routes (public — no session required) ─────────────────────────────────
 EJS_SESSION_APP.use('/auth', authSessionRoute);
+EJS_SESSION_APP.use('/package', packageRoutes)
 
 // ── Protected routes (session required) ───────────────────────────────────────
 EJS_SESSION_APP.get('/', requireSessionAuth, (req, res) => res.redirect('/dashboard'));

@@ -1,3 +1,4 @@
+import { Prisma } from '../generated/index.js';
 import { post_package, list_packages } from '../services/package.service.js';
 import { ZodError } from 'zod';
 
@@ -11,12 +12,9 @@ export const ejsPostPackage = async (req, res) => {
     await post_package(name, description, Number(price));
     return res.redirect('/packages');
   } catch (err) {
-    if (err instanceof ZodError) {
-      const error = err.errors.map(e => e.message).join(', ');
-      return res.render('package/create', { error });
-    }
-    console.error('[package] ejsPostPackage:', err);
-    return res.render('package/create', { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' });
+    if(err.code === 'P002') return res.render('package/index', {error: "exiting"});
+    return response.serverError(res);
+    
   }
 };
 export const listPackages = async (req, res) => {
