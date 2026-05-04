@@ -7,7 +7,7 @@ import APP_APP from "./app.js";
 const APP_POST = process.env["APP_PORT"];
 
 // ── Session-based EJS app (Redis session, rolling TTL) ────────────────────────
-import EJS_SESSION_APP from "./ejs-session.js";
+import EJS_SESSION_APP from "./ejs-app.js";
 const EJS_SESSION_PORT = process.env["EJS_SESSION_PORT"];
 
 

@@ -1,5 +1,5 @@
 /**
- * ejs-session.js — EJS app ที่ใช้ Redis session แทน JWT cookie
+ * ejs-app.js — EJS app ที่ใช้ Redis session แทน JWT cookie
  *
  * การทำงาน:
  *   - express-session + Redis store จัดการ session ทั้งหมด
