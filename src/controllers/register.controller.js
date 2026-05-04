@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { response } from '../lib/response.js';
 import { post_register } from '../services/register.servie.js';
+import { ZodError } from 'zod';
 
 const EMPTY_OLD = { email: '', username: '', firstname: '', lastname: '' };
 
@@ -31,7 +32,14 @@ export const register = async (req, res) => {
                 old: { email: req.body.email, username: req.body.username, firstname: req.body.firstname, lastname: req.body.lastname },
             });
         }
-        console.error('[register]', err);
-        return response.serverError(res);
+
+        const obj = JSON.parse(err.message);
+
+        const message_error = obj[0].path +' '+ obj[0].message;
+        
+        return res.render('register/index', {
+            error: message_error,
+            old: { email: req.body.email, username: req.body.username, firstname: req.body.firstname, lastname: req.body.lastname },
+        });
     }
 };

@@ -12,7 +12,7 @@ import bcrypt from "bcryptjs";
 //   updated_at    DateTime @updatedAt
 const register_schema = z.object({
   email:        z.string().min(1).max(100),
-  username: z.string().max(100),
+  username: z.string().min(3).max(100),
   firstname: z.string().max(100).optional(),
   lastname: z.string().max(100).optional(),
   password_hash: z.string().max(500).optional(),

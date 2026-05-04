@@ -14,7 +14,7 @@ import express          from 'express';
 import { sessionMiddleware } from './lib/session.js';
 import requireSessionAuth    from './middlewares/requireSessionAuth.js';
 import authSessionRoute      from './routes/auth.session.route.js';
-import authSessionRoute      from './routes/package.route.js';
+import packageRoutes      from './routes/package.ejs.route.js';
 
 const EJS_SESSION_APP = express();
 
