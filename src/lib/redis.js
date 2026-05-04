@@ -23,7 +23,6 @@
  */
 
 import Redis from 'ioredis';
-
 function createClient() {
   const url      = process.env.REDIS_URL;
   const host     = process.env.REDIS_HOST     || '127.0.0.1';
@@ -43,7 +42,8 @@ function createClient() {
       return Math.min(times * 200, 2000); // delay ms
     },
   };
-
+  console.log(url);
+  
   if (url) {
     // แบบแยก — REDIS_URL (รองรับ redis:// และ rediss://)
     console.log(`[Redis] Connecting via REDIS_URL (${url.replace(/\/\/.*@/, '//<credentials>@')})`);
