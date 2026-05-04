@@ -2,24 +2,36 @@ import bcrypt from 'bcryptjs';
 import { response } from '../lib/response.js';
 import { post_register } from '../services/register.servie.js';
 
+const EMPTY_OLD = { email: '', username: '', firstname: '', lastname: '' };
+
+export const showRegister = (req, res) => {
+    return res.render('register/index', { error: null, old: EMPTY_OLD });
+};
+
 export const register = async (req, res) => {
     try {
         const { email, username, firstname, lastname, password, role } = req.body;
 
         if (!email || !username || !password) {
-            return response.error(res, 'email, username and password are required');
+            return res.render('register/index', {
+                error: 'email, username and password are required',
+                old: { email, username, firstname, lastname },
+            });
         }
 
         const password_hash = await bcrypt.hash(password, 10);
 
-        const user = await post_register(email, username, firstname, lastname, password_hash, role);
+        await post_register(email, username, firstname, lastname, password_hash, role);
 
-        return response.created_success(res, { id: user.id, email: user.email, username: user.username }, 'Registered successfully');
+        return res.redirect('/auth/login?locale=en');
     } catch (err) {
         if (err.code === 'P2002') {
-            return response.error(res, 'Email or username already exists');
+            return res.render('register/index', {
+                error: 'Email or username already exists',
+                old: { email: req.body.email, username: req.body.username, firstname: req.body.firstname, lastname: req.body.lastname },
+            });
         }
-        console.error(err);
+        console.error('[register]', err);
         return response.serverError(res);
     }
 };
