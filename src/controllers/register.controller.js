@@ -6,7 +6,7 @@ import { ZodError } from 'zod';
 const EMPTY_OLD = { email: '', username: '', firstname: '', lastname: '' };
 
 export const showRegister = (req, res) => {
-    return res.render('register/index', { error: null, old: EMPTY_OLD });
+    return res.render('register/index', { error: null, old: EMPTY_OLD, layout: false });
 };
 
 export const register = async (req, res) => {
@@ -27,19 +27,22 @@ export const register = async (req, res) => {
         return res.redirect('/auth/login?locale=en');
     } catch (err) {
         if (err.code === 'P2002') {
+            console.log("error code ", err.message);
+            
             return res.render('register/index', {
-                error: 'Email or username already exists',
+                error: err.message,
                 old: { email: req.body.email, username: req.body.username, firstname: req.body.firstname, lastname: req.body.lastname },
+                layout: false,
             });
         }
-
-        const obj = JSON.parse(err.message);
-
-        const message_error = obj[0].path +' '+ obj[0].message;
         
+        const obj = JSON.parse(err.message);
+        const message_error = (obj[0].path ? obj[0].path + " " : "") + obj[0].message;
+        console.log("message_error", message_error);
         return res.render('register/index', {
             error: message_error,
             old: { email: req.body.email, username: req.body.username, firstname: req.body.firstname, lastname: req.body.lastname },
+            layout: false,
         });
     }
 };
