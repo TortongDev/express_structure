@@ -9,6 +9,7 @@ import bcrypt from 'bcryptjs';
 import prisma  from '../lib/prisma.js';
 import { translate } from '../services/translate.service.js';
 
+const IS_PROD = process.env.NODE_ENV === 'production';
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getLocale(query) {
   return ['en', 'th'].includes(query.locale) ? query.locale : 'en';
@@ -25,8 +26,12 @@ export const showSessionLogin = (req, res) => {
   const locale   = getLocale(req.query);
   const text     = translate['login'][locale];
   const returnTo = req.query.returnTo || '';
-
-  return res.render('login/session', { error: null, text, locale, returnTo });
+  res.cookie('locale', locale, {
+    httpOnly: true,
+    secure: IS_PROD, 
+    maxAge: 1000 * 60 * 60 * 24 * 30 
+  });
+  return res.render('login/session', { error: null, text, locale, returnTo , layout: false });
 };
 
 // ── POST /auth/login ──────────────────────────────────────────────────────────
@@ -38,7 +43,7 @@ export const sessionLogin = async (req, res) => {
   const { username, password } = req.body;
 
   const renderError = (msg) =>
-    res.render('login/session', { error: msg, text, locale, returnTo });
+    res.render('login/session', { error: msg, text, locale, returnTo, layout: false });
 
   if (!username || !password) {
     return renderError('กรุณากรอกข้อมูลให้ครบ');
