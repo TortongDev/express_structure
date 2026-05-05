@@ -27,10 +27,14 @@ export const register = async (req, res) => {
         return res.redirect('/auth/login?locale=en');
     } catch (err) {
         if (err.code === 'P2002') {
-            console.log("error code ", err.message);
-            
+            const fields = err.meta?.target ?? [];
+            const fieldLabel = fields.includes('email') ? 'email' : fields.join(', ');
+            const friendlyMsg = fieldLabel
+                ? `${fieldLabel} นี้ถูกใช้งานแล้ว กรุณาใช้ข้อมูลอื่น`
+                : 'ข้อมูลนี้ถูกใช้งานแล้ว กรุณาใช้ข้อมูลอื่น';
+
             return res.render('register/index', {
-                error: err.message,
+                error: friendlyMsg,
                 old: { email: req.body.email, username: req.body.username, firstname: req.body.firstname, lastname: req.body.lastname },
                 layout: false,
             });
