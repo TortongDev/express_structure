@@ -39,7 +39,8 @@ export const sessionLogin = async (req, res) => {
   const locale   = getLocale(req.query);
   const text     = translate['login'][locale];
   const returnTo = req.query.returnTo || '';
-
+  console.log('start');
+  
   const { username, password } = req.body;
 
   const renderError = (msg) =>

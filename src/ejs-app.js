@@ -16,6 +16,7 @@ import { sessionMiddleware } from './lib/session.js';
 import requireSessionAuth    from './middlewares/requireSessionAuth.js';
 import authSessionRoute      from './routes/auth.session.route.js';
 import packageRoutes      from './routes/package.ejs.route.js';
+import redis from './lib/redis.js';
 
 const EJS_SESSION_APP = express();
 
@@ -35,6 +36,8 @@ EJS_SESSION_APP.use('/package', packageRoutes)
 EJS_SESSION_APP.get('/', requireSessionAuth, (req, res) => res.redirect('/dashboard'));
 
 EJS_SESSION_APP.get('/dashboard', requireSessionAuth, (req, res) => {
+  const cacheRedisName =  "Dashboard:";
+  redis.set(cacheRedisName, JSON.stringify({name:"kittithat",age: 29}), "EX", 60);
   res.render('dashboard/index', { user: req.user });
 });
 
