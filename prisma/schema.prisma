@@ -142,3 +142,15 @@ model Store {
 
   @@map("stores")
 }
+
+model lang {
+  id          String    @id @default(uuid())
+  code        String    @unique               // en, th, etc.
+  th_TH        String                          // English, Thai, etc.
+  en_US        String                          // English, Thai, etc.
+  route_path   String                          // สำหรับใช้ใน URL เช่น /en, /th
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  @@map("langs")
+}

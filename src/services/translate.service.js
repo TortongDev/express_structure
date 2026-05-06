@@ -8,6 +8,7 @@ export let translate = {
         placeholder_username: 'Enter username or email',
         placeholder_password: 'Enter password',
         remember_me: 'Remember me',
+        register: "Register"
         },
         'th': {
         title: 'เข้าสู่ระบบ',
@@ -17,6 +18,7 @@ export let translate = {
         placeholder_username: 'กรอกชื่อผู้ใช้หรืออีเมล',
         placeholder_password: 'กรอกรหัสผ่าน',
         remember_me: 'จดจำฉัน',
+        register: "สมัครสมาชิก"
         }
     }
 }

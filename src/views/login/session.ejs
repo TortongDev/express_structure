@@ -42,6 +42,7 @@
           placeholder="<%=text['placeholder_username']%>"
           required
           autocomplete="username"
+          value="<%=user.username || ''%>"
         >
       </div>
 
@@ -56,9 +57,12 @@
           autocomplete="current-password"
         >
       </div>
-
-      <button type="submit" class="btn btn-primary w-100"><%=text['submit'] || ''%></button>
-
+      <div class="mb-3">
+        <button type="submit" class="btn btn-primary w-100"><%=text['submit'] || ''%></button>
+      </div>
+      <div class="wrapper-register">
+        <a href="/auth/register"><%=text['register']%></a>
+      </div>
     </form>
   </div>
 </div>

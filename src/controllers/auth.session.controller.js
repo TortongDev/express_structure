@@ -10,6 +10,8 @@ import prisma  from '../lib/prisma.js';
 import { translate } from '../services/translate.service.js';
 
 const IS_PROD = process.env.NODE_ENV === 'production';
+const EMPTY_USER = { username: '' };
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getLocale(query) {
   return ['en', 'th'].includes(query.locale) ? query.locale : 'en';
@@ -31,7 +33,7 @@ export const showSessionLogin = (req, res) => {
     secure: IS_PROD, 
     maxAge: 1000 * 60 * 60 * 24 * 30 
   });
-  return res.render('login/session', { error: null, text, locale, returnTo , layout: false });
+  return res.render('login/session', { error: null, text, locale, returnTo , layout: false, user: EMPTY_USER});
 };
 
 // ── POST /auth/login ──────────────────────────────────────────────────────────
@@ -39,12 +41,11 @@ export const sessionLogin = async (req, res) => {
   const locale   = getLocale(req.query);
   const text     = translate['login'][locale];
   const returnTo = req.query.returnTo || '';
-  console.log('start');
-  
-  const { username, password } = req.body;
 
+  const { username, password } = req.body;
+  const users = {username}
   const renderError = (msg) =>
-    res.render('login/session', { error: msg, text, locale, returnTo, layout: false });
+    res.render('login/session', { error: msg, text, locale, returnTo, layout: false, user: users });
 
   if (!username || !password) {
     return renderError('กรุณากรอกข้อมูลให้ครบ');
