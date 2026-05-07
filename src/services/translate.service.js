@@ -1,7 +1,7 @@
 export let translate = {
     "login": {
         'en': {
-        title: 'Login',
+        title: 'Login Cafei Admin',
         username: 'Username',
         password: 'Password',
         submit: 'Login',
@@ -11,7 +11,7 @@ export let translate = {
         register: "Register"
         },
         'th': {
-        title: 'เข้าสู่ระบบ',
+        title: 'เข้าสู่ระบบผู้ดูระบบ',
         username: 'ชื่อผู้ใช้',
         password: 'รหัสผ่าน',
         submit: 'เข้าสู่ระบบ',
