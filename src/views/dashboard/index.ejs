@@ -1,1 +1,395 @@
-    Hello Dashboard
+<style>
+  /* ── STAT CARDS ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+    transition: box-shadow .2s, transform .2s;
+  }
+
+  .stat-card:hover {
+    box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    transform: translateY(-2px);
+  }
+
+  .stat-card-top {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .stat-icon {
+    width: 40px; height: 40px;
+    border-radius: 11px;
+    display: grid; place-items: center;
+    font-size: 17px;
+  }
+
+  .stat-icon.indigo { background: rgba(99,102,241,.12); color: #6366f1; }
+  .stat-icon.emerald { background: rgba(16,185,129,.12); color: #10b981; }
+  .stat-icon.amber { background: rgba(245,158,11,.12); color: #f59e0b; }
+  .stat-icon.rose { background: rgba(244,63,94,.12); color: #f43f5e; }
+
+  .stat-badge {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 20px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  .stat-badge.up { background: rgba(16,185,129,.1); color: #10b981; }
+  .stat-badge.down { background: rgba(244,63,94,.1); color: #f43f5e; }
+
+  .stat-value {
+    font-size: 28px; font-weight: 700;
+    color: var(--text-primary); letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 12.5px; color: var(--text-muted);
+    margin-top: 5px; font-weight: 500;
+  }
+
+  /* ── SECTION CARDS ── */
+  .section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .section-card-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-card-header h2 {
+    font-size: 14px; font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+  }
+
+  .section-card-header p {
+    font-size: 12px; color: var(--text-muted); margin-top: 2px;
+  }
+
+  /* ── TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; }
+
+  .data-table th {
+    font-size: 11.5px; font-weight: 600;
+    color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.7px;
+    padding: 10px 22px;
+    background: #f9fafb;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+
+  .data-table td {
+    padding: 13px 22px;
+    font-size: 13.5px; color: var(--text-primary);
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .data-table tr:hover td { background: #fafafa; }
+
+  .user-cell { display: flex; align-items: center; gap: 10px; }
+
+  .user-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg,#6366f1,#a855f7);
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+
+  .badge-status {
+    font-size: 11.5px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    display: inline-block;
+  }
+
+  .badge-status.active { background: rgba(16,185,129,.1); color: #10b981; }
+  .badge-status.pending { background: rgba(245,158,11,.1); color: #f59e0b; }
+  .badge-status.suspended { background: rgba(244,63,94,.1); color: #f43f5e; }
+
+  /* ── QUICK ACTIONS ── */
+  .quick-actions {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 18px;
+  }
+
+  .action-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s, border-color .15s;
+    font-size: 13px; font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .action-btn:hover { background: var(--page-bg); border-color: #d1d5db; color: var(--text-primary); }
+
+  .action-btn .ab-icon {
+    width: 32px; height: 32px; border-radius: 9px;
+    display: grid; place-items: center; font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* ── ACTIVITY FEED ── */
+  .activity-list { padding: 6px 0; }
+
+  .activity-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 22px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .activity-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    margin-top: 5px; flex-shrink: 0;
+  }
+
+  .activity-item .activity-meta {
+    font-size: 11.5px; color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .activity-item .activity-title {
+    font-size: 13px; font-weight: 500;
+    color: var(--text-primary);
+  }
+</style>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Welcome back, <%= (user && user.username) || "Admin" %>. Here's what's happening.</p>
+  </div>
+  <div class="page-header-actions">
+    <a href="#" class="btn-ghost"><i class="bi bi-download"></i> Export</a>
+    <a href="#" class="btn-primary-cafei"><i class="bi bi-plus-lg"></i> New User</a>
+  </div>
+</div>
+
+<!-- ── STAT CARDS ── -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <div class="stat-icon indigo"><i class="bi bi-people-fill"></i></div>
+      <span class="stat-badge up"><i class="bi bi-arrow-up-short"></i>12%</span>
+    </div>
+    <div class="stat-value">1,284</div>
+    <div class="stat-label">Total Users</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <div class="stat-icon emerald"><i class="bi bi-receipt-cutoff"></i></div>
+      <span class="stat-badge up"><i class="bi bi-arrow-up-short"></i>8.4%</span>
+    </div>
+    <div class="stat-value">847</div>
+    <div class="stat-label">Active Orders</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <div class="stat-icon amber"><i class="bi bi-currency-dollar"></i></div>
+      <span class="stat-badge up"><i class="bi bi-arrow-up-short"></i>21%</span>
+    </div>
+    <div class="stat-value">$24.6k</div>
+    <div class="stat-label">Monthly Revenue</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <div class="stat-icon rose"><i class="bi bi-x-circle"></i></div>
+      <span class="stat-badge down"><i class="bi bi-arrow-down-short"></i>3.1%</span>
+    </div>
+    <div class="stat-value">14</div>
+    <div class="stat-label">Churned This Month</div>
+  </div>
+</div>
+
+<!-- ── MAIN GRID ── -->
+<div style="display:grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start;">
+
+  <!-- Recent Users Table -->
+  <div class="section-card">
+    <div class="section-card-header">
+      <div>
+        <h2>Recent Users</h2>
+        <p>Latest registrations across all plans</p>
+      </div>
+      <a href="/users" class="btn-ghost" style="font-size:12px;padding:6px 14px;">View all</a>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Plan</th>
+          <th>Joined</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">AS</div>
+              <div>
+                <div style="font-weight:600">Ahmad Salim</div>
+                <div style="font-size:11.5px;color:var(--text-muted)">ahmad@email.com</div>
+              </div>
+            </div>
+          </td>
+          <td>Pro</td>
+          <td style="color:var(--text-muted);font-size:12.5px">May 8, 2026</td>
+          <td><span class="badge-status active">Active</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">NR</div>
+              <div>
+                <div style="font-weight:600">Nour Rania</div>
+                <div style="font-size:11.5px;color:var(--text-muted)">nour@email.com</div>
+              </div>
+            </div>
+          </td>
+          <td>Starter</td>
+          <td style="color:var(--text-muted);font-size:12.5px">May 7, 2026</td>
+          <td><span class="badge-status pending">Pending</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar" style="background:linear-gradient(135deg,#10b981,#0ea5e9)">KH</div>
+              <div>
+                <div style="font-weight:600">Karim Hassan</div>
+                <div style="font-size:11.5px;color:var(--text-muted)">karim@email.com</div>
+              </div>
+            </div>
+          </td>
+          <td>Enterprise</td>
+          <td style="color:var(--text-muted);font-size:12.5px">May 5, 2026</td>
+          <td><span class="badge-status active">Active</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar" style="background:linear-gradient(135deg,#f43f5e,#f59e0b)">LM</div>
+              <div>
+                <div style="font-weight:600">Lina Majed</div>
+                <div style="font-size:11.5px;color:var(--text-muted)">lina@email.com</div>
+              </div>
+            </div>
+          </td>
+          <td>Pro</td>
+          <td style="color:var(--text-muted);font-size:12.5px">May 3, 2026</td>
+          <td><span class="badge-status suspended">Suspended</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Right column -->
+  <div style="display:flex;flex-direction:column;gap:20px;">
+
+    <!-- Quick Actions -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div><h2>Quick Actions</h2></div>
+      </div>
+      <div class="quick-actions">
+        <a href="/users/new" class="action-btn">
+          <div class="ab-icon" style="background:rgba(99,102,241,.1);color:#6366f1"><i class="bi bi-person-plus"></i></div>
+          Add User
+        </a>
+        <a href="/packages/new" class="action-btn">
+          <div class="ab-icon" style="background:rgba(16,185,129,.1);color:#10b981"><i class="bi bi-box-seam"></i></div>
+          New Package
+        </a>
+        <a href="/api-keys" class="action-btn">
+          <div class="ab-icon" style="background:rgba(245,158,11,.1);color:#f59e0b"><i class="bi bi-key"></i></div>
+          API Keys
+        </a>
+        <a href="/settings" class="action-btn">
+          <div class="ab-icon" style="background:rgba(244,63,94,.1);color:#f43f5e"><i class="bi bi-sliders"></i></div>
+          Settings
+        </a>
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div>
+          <h2>Recent Activity</h2>
+          <p>Last 24 hours</p>
+        </div>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-dot" style="background:#6366f1"></div>
+          <div>
+            <div class="activity-title">New user registered</div>
+            <div class="activity-meta">2 minutes ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:#10b981"></div>
+          <div>
+            <div class="activity-title">Package #PRO-112 activated</div>
+            <div class="activity-meta">18 minutes ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:#f59e0b"></div>
+          <div>
+            <div class="activity-title">API key generated</div>
+            <div class="activity-meta">1 hour ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:#f43f5e"></div>
+          <div>
+            <div class="activity-title">User lina@email.com suspended</div>
+            <div class="activity-meta">3 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:#6366f1"></div>
+          <div>
+            <div class="activity-title">System backup completed</div>
+            <div class="activity-meta">6 hours ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right col -->
+</div><!-- /main grid -->

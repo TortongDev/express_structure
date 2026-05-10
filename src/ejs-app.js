@@ -16,7 +16,9 @@ import { sessionMiddleware } from './lib/session.js';
 import requireSessionAuth    from './middlewares/requireSessionAuth.js';
 import authSessionRoute      from './routes/auth.session.route.js';
 import packageRoutes      from './routes/package.ejs.route.js';
+import userRoutes      from './routes/user.ejs.route.js';
 import redis from './lib/redis.js';
+import { csrfMiddleware } from './middlewares/csrf.js';
 
 const EJS_SESSION_APP = express();
 
@@ -28,9 +30,13 @@ EJS_SESSION_APP.set('layout', 'templates/layout');
 // ── Session middleware (Redis store, rolling TTL) ──────────────────────────────
 EJS_SESSION_APP.use(sessionMiddleware);
 
+// ── CSRF protection (after session so token can be stored) ────────────────────
+EJS_SESSION_APP.use(csrfMiddleware);
+
 // ── Auth routes (public — no session required) ─────────────────────────────────
 EJS_SESSION_APP.use('/auth', authSessionRoute);
-EJS_SESSION_APP.use('/package', packageRoutes)
+EJS_SESSION_APP.use('/packages', requireSessionAuth, packageRoutes);
+EJS_SESSION_APP.use('/users', requireSessionAuth, userRoutes);
 
 // ── Protected routes (session required) ───────────────────────────────────────
 EJS_SESSION_APP.get('/', requireSessionAuth, (req, res) => res.redirect('/dashboard'));
@@ -38,6 +44,7 @@ EJS_SESSION_APP.get('/', requireSessionAuth, (req, res) => res.redirect('/dashbo
 EJS_SESSION_APP.get('/dashboard', requireSessionAuth, (req, res) => {
   const cacheRedisName =  "Dashboard:";
   redis.set(cacheRedisName, JSON.stringify({name:"kittithat",age: 29}), "EX", 60);
+  console.log(req.user)
   res.render('dashboard/index', { user: req.user });
 });
 

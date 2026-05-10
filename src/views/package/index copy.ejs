@@ -1,0 +1,719 @@
+<style>
+  /* ── TOOLBAR ── */
+  .pkg-toolbar {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .pkg-search {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px; color: var(--text-muted);
+    min-width: 260px;
+  }
+
+  .pkg-search input {
+    border: none; outline: none; background: transparent;
+    font-size: 13px; color: var(--text-primary);
+    width: 100%;
+    font-family: inherit;
+  }
+
+  .pkg-search input::placeholder { color: var(--text-muted); }
+
+  /* ── PACKAGE TABLE ── */
+  .pkg-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .pkg-card-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pkg-card-header h2 {
+    font-size: 14px; font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .pkg-card-header p {
+    font-size: 12px; color: var(--text-muted); margin-top: 2px;
+  }
+
+  .pkg-count {
+    font-size: 11.5px; font-weight: 600;
+    background: rgba(99,102,241,.1);
+    color: #6366f1;
+    padding: 4px 11px;
+    border-radius: 20px;
+  }
+
+  .pkg-table { width: 100%; border-collapse: collapse; }
+
+  .pkg-table th {
+    font-size: 11.5px; font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.7px;
+    padding: 10px 24px;
+    background: #f9fafb;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+
+  .pkg-table td {
+    padding: 14px 24px;
+    font-size: 13.5px; color: var(--text-primary);
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+  }
+
+  .pkg-table tr:last-child td { border-bottom: none; }
+  .pkg-table tr:hover td { background: #fafafa; }
+
+  .pkg-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: grid; place-items: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+
+  .pkg-name-cell { display: flex; align-items: center; gap: 11px; }
+
+  .pkg-name { font-weight: 600; font-size: 13.5px; }
+  .pkg-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .pkg-price {
+    font-weight: 700; font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  .pkg-price span {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .badge-tier {
+    font-size: 11.5px; font-weight: 600;
+    padding: 3px 11px; border-radius: 20px;
+    display: inline-block;
+  }
+
+  .badge-tier.starter  { background: rgba(16,185,129,.1);  color: #10b981; }
+  .badge-tier.pro      { background: rgba(99,102,241,.1);   color: #6366f1; }
+  .badge-tier.enterprise { background: rgba(245,158,11,.1); color: #f59e0b; }
+  .badge-tier.custom   { background: rgba(244,63,94,.1);    color: #f43f5e; }
+
+  .badge-status {
+    font-size: 11.5px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .badge-status::before { content:""; width:6px; height:6px; border-radius:50%; }
+  .badge-status.active   { background: rgba(16,185,129,.1); color: #10b981; }
+  .badge-status.active::before { background: #10b981; }
+  .badge-status.inactive { background: rgba(156,163,175,.15); color: #6b7280; }
+  .badge-status.inactive::before { background: #9ca3af; }
+
+  .action-btns { display: flex; gap: 6px; }
+
+  .tbl-btn {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 13px; border: 1px solid var(--border);
+    background: #fff; cursor: pointer;
+    text-decoration: none; transition: background .15s, color .15s, border-color .15s;
+  }
+
+  .tbl-btn.edit { color: #6366f1; }
+  .tbl-btn.edit:hover { background: rgba(99,102,241,.08); border-color: rgba(99,102,241,.3); color: #6366f1; }
+
+  .tbl-btn.delete { color: #f43f5e; }
+  .tbl-btn.delete:hover { background: rgba(244,63,94,.08); border-color: rgba(244,63,94,.3); color: #f43f5e; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 60px 24px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .empty-state .empty-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: rgba(99,102,241,.08);
+    display: grid; place-items: center;
+    font-size: 24px; color: #6366f1;
+    margin-bottom: 14px;
+  }
+
+  .empty-state h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+  .empty-state p  { font-size: 13px; margin-top: 4px; }
+
+  /* ── MODAL ── */
+  .modal-backdrop-custom {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.4);
+    backdrop-filter: blur(2px);
+    z-index: 200;
+    align-items: center; justify-content: center;
+  }
+
+  .modal-backdrop-custom.open { display: flex; }
+
+  .modal-box {
+    background: #fff;
+    border-radius: 18px;
+    width: 100%; max-width: 500px;
+    padding: 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.15);
+    position: relative;
+    animation: slideUp .2s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity:0; transform: translateY(16px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  .modal-header-custom {
+    display: flex; align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+
+  .modal-header-custom h3 { font-size: 17px; font-weight: 700; }
+  .modal-header-custom p  { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; }
+
+  .modal-close {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--border); background: #fff;
+    display: grid; place-items: center;
+    font-size: 14px; cursor: pointer;
+    color: var(--text-muted);
+    transition: background .15s;
+    flex-shrink: 0;
+  }
+
+  .modal-close:hover { background: #f3f4f6; }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-size: 12.5px; font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .form-control-custom {
+    width: 100%;
+    padding: 9px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 13.5px;
+    color: var(--text-primary);
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+    background: #fff;
+  }
+
+  .form-control-custom:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+  }
+
+  .form-control-custom::placeholder { color: var(--text-muted); }
+
+  textarea.form-control-custom { resize: vertical; min-height: 80px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .form-footer {
+    display: flex; justify-content: flex-end; gap: 8px;
+    margin-top: 24px; padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── DELETE CONFIRM MODAL ── */
+  .delete-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: rgba(244,63,94,.08);
+    display: grid; place-items: center;
+    font-size: 22px; color: #f43f5e;
+    margin-bottom: 16px;
+  }
+</style>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div>
+    <h1>Packages</h1>
+    <p>Manage subscription plans and pricing tiers</p>
+  </div>
+  <div class="page-header-actions">
+    <a href="#" class="btn-ghost"><i class="bi bi-download"></i> Export</a>
+    <button class="btn-primary-cafei" onclick="openAddModal()">
+      <i class="bi bi-plus-lg"></i> Add Package
+    </button>
+  </div>
+</div>
+
+<!-- ── TOOLBAR ── -->
+<div class="pkg-toolbar">
+  <div class="pkg-search">
+    <i class="bi bi-search" style="font-size:13px"></i>
+    <input type="text" id="searchInput" placeholder="Search packages…" oninput="filterTable()">
+  </div>
+  <div style="display:flex;gap:8px">
+    <select class="form-control-custom" style="width:auto;padding:7px 12px;font-size:13px" onchange="filterTable()" id="tierFilter">
+      <option value="">All Tiers</option>
+      <option value="starter">Starter</option>
+      <option value="pro">Pro</option>
+      <option value="enterprise">Enterprise</option>
+      <option value="custom">Custom</option>
+    </select>
+    <select class="form-control-custom" style="width:auto;padding:7px 12px;font-size:13px" onchange="filterTable()" id="statusFilter">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+  </div>
+</div>
+
+<!-- ── TABLE CARD ── -->
+<div class="pkg-card">
+  <div class="pkg-card-header">
+    <div>
+      <h2>All Packages</h2>
+      <p>Click edit to modify or delete to remove a plan</p>
+    </div>
+    <span class="pkg-count" id="pkgCount">5 packages</span>
+  </div>
+
+  <table class="pkg-table" id="pkgTable">
+    <thead>
+      <tr>
+        <th>Package</th>
+        <th>Tier</th>
+        <th>Price</th>
+        <th>Users</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="pkgTableBody">
+      <!-- Row 1 -->
+      <tr data-tier="starter" data-status="active">
+        <td>
+          <div class="pkg-name-cell">
+            <div class="pkg-icon" style="background:rgba(16,185,129,.1);color:#10b981"><i class="bi bi-box-seam"></i></div>
+            <div>
+              <div class="pkg-name">Starter Plan</div>
+              <div class="pkg-desc">Up to 5 API calls/day</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge-tier starter">Starter</span></td>
+        <td><div class="pkg-price">$9 <span>/ mo</span></div></td>
+        <td style="color:var(--text-muted)">312</td>
+        <td><span class="badge-status active">Active</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="tbl-btn edit" title="Edit" onclick="openEditModal({id:1,name:'Starter Plan',tier:'starter',price:'9',billing:'monthly',limit:'5',desc:'Up to 5 API calls/day',status:'active'})">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="tbl-btn delete" title="Delete" onclick="openDeleteModal(1,'Starter Plan')">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      <!-- Row 2 -->
+      <tr data-tier="pro" data-status="active">
+        <td>
+          <div class="pkg-name-cell">
+            <div class="pkg-icon" style="background:rgba(99,102,241,.1);color:#6366f1"><i class="bi bi-stars"></i></div>
+            <div>
+              <div class="pkg-name">Pro Plan</div>
+              <div class="pkg-desc">Unlimited API calls + priority</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge-tier pro">Pro</span></td>
+        <td><div class="pkg-price">$29 <span>/ mo</span></div></td>
+        <td style="color:var(--text-muted)">845</td>
+        <td><span class="badge-status active">Active</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="tbl-btn edit" title="Edit" onclick="openEditModal({id:2,name:'Pro Plan',tier:'pro',price:'29',billing:'monthly',limit:'unlimited',desc:'Unlimited API calls + priority',status:'active'})">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="tbl-btn delete" title="Delete" onclick="openDeleteModal(2,'Pro Plan')">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      <!-- Row 3 -->
+      <tr data-tier="enterprise" data-status="active">
+        <td>
+          <div class="pkg-name-cell">
+            <div class="pkg-icon" style="background:rgba(245,158,11,.1);color:#f59e0b"><i class="bi bi-building"></i></div>
+            <div>
+              <div class="pkg-name">Enterprise</div>
+              <div class="pkg-desc">Custom limits + SLA support</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge-tier enterprise">Enterprise</span></td>
+        <td><div class="pkg-price">$99 <span>/ mo</span></div></td>
+        <td style="color:var(--text-muted)">127</td>
+        <td><span class="badge-status active">Active</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="tbl-btn edit" title="Edit" onclick="openEditModal({id:3,name:'Enterprise',tier:'enterprise',price:'99',billing:'monthly',limit:'custom',desc:'Custom limits + SLA support',status:'active'})">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="tbl-btn delete" title="Delete" onclick="openDeleteModal(3,'Enterprise')">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      <!-- Row 4 -->
+      <tr data-tier="starter" data-status="inactive">
+        <td>
+          <div class="pkg-name-cell">
+            <div class="pkg-icon" style="background:#f3f4f6;color:#9ca3af"><i class="bi bi-box"></i></div>
+            <div>
+              <div class="pkg-name">Free Trial</div>
+              <div class="pkg-desc">14-day trial, no card needed</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge-tier starter">Starter</span></td>
+        <td><div class="pkg-price">$0 <span>/ 14d</span></div></td>
+        <td style="color:var(--text-muted)">0</td>
+        <td><span class="badge-status inactive">Inactive</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="tbl-btn edit" title="Edit" onclick="openEditModal({id:4,name:'Free Trial',tier:'starter',price:'0',billing:'one-time',limit:'5',desc:'14-day trial, no card needed',status:'inactive'})">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="tbl-btn delete" title="Delete" onclick="openDeleteModal(4,'Free Trial')">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      <!-- Row 5 -->
+      <tr data-tier="custom" data-status="active">
+        <td>
+          <div class="pkg-name-cell">
+            <div class="pkg-icon" style="background:rgba(244,63,94,.1);color:#f43f5e"><i class="bi bi-puzzle"></i></div>
+            <div>
+              <div class="pkg-name">Custom Plan</div>
+              <div class="pkg-desc">Tailored to client needs</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge-tier custom">Custom</span></td>
+        <td><div class="pkg-price">— <span>negotiated</span></div></td>
+        <td style="color:var(--text-muted)">12</td>
+        <td><span class="badge-status active">Active</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="tbl-btn edit" title="Edit" onclick="openEditModal({id:5,name:'Custom Plan',tier:'custom',price:'',billing:'monthly',limit:'custom',desc:'Tailored to client needs',status:'active'})">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="tbl-btn delete" title="Delete" onclick="openDeleteModal(5,'Custom Plan')">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Empty state (hidden by default) -->
+  <div class="empty-state" id="emptyState" style="display:none">
+    <div class="empty-icon"><i class="bi bi-box-seam"></i></div>
+    <h3>No packages found</h3>
+    <p>Try adjusting the search or filter, or add a new package.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     ADD MODAL
+════════════════════════════════════ -->
+<div class="modal-backdrop-custom" id="addModal">
+  <div class="modal-box">
+    <div class="modal-header-custom">
+      <div>
+        <h3>Add New Package</h3>
+        <p>Fill in the details to create a subscription plan</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('addModal')"><i class="bi bi-x"></i></button>
+    </div>
+
+    <form id="addForm" action="/packages" method="POST">
+      <div class="form-group">
+        <label class="form-label">Package Name *</label>
+        <input class="form-control-custom" type="text" name="name" placeholder="e.g. Pro Plan" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tier *</label>
+          <select class="form-control-custom" name="tier">
+            <option value="">Select tier…</option>
+            <option value="starter">Starter</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price (USD)</label>
+          <input class="form-control-custom" type="number" name="price" placeholder="0" min="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Billing Cycle</label>
+          <select class="form-control-custom" name="billing">
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="one-time">One-time</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">API Call Limit</label>
+          <input class="form-control-custom" type="text" name="limit" placeholder="e.g. 100 or unlimited">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control-custom" name="desc" placeholder="Short description of what's included…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-control-custom" name="status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="form-footer">
+        <button type="button" class="btn-ghost" onclick="closeModal('addModal')">Cancel</button>
+        <button type="submit" class="btn-primary-cafei"><i class="bi bi-check2"></i> Save Package</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     EDIT MODAL
+════════════════════════════════════ -->
+<div class="modal-backdrop-custom" id="editModal">
+  <div class="modal-box">
+    <div class="modal-header-custom">
+      <div>
+        <h3>Edit Package</h3>
+        <p>Update the details of this plan</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('editModal')"><i class="bi bi-x"></i></button>
+    </div>
+
+    <form id="editForm" onsubmit="handleEdit(event)">
+      <input type="hidden" name="id" id="editId">
+      <div class="form-group">
+        <label class="form-label">Package Name *</label>
+        <input class="form-control-custom" type="text" name="name" id="editName" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tier *</label>
+          <select class="form-control-custom" name="tier" id="editTier" required>
+            <option value="starter">Starter</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price (USD)</label>
+          <input class="form-control-custom" type="number" name="price" id="editPrice" min="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Billing Cycle</label>
+          <select class="form-control-custom" name="billing" id="editBilling">
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="one-time">One-time</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">API Call Limit</label>
+          <input class="form-control-custom" type="text" name="limit" id="editLimit">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control-custom" name="desc" id="editDesc"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-control-custom" name="status" id="editStatus">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="form-footer">
+        <button type="button" class="btn-ghost" onclick="closeModal('editModal')">Cancel</button>
+        <button type="submit" class="btn-primary-cafei"><i class="bi bi-check2"></i> Update Package</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     DELETE CONFIRM MODAL
+════════════════════════════════════ -->
+<div class="modal-backdrop-custom" id="deleteModal">
+  <div class="modal-box" style="max-width:400px;text-align:center;">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+      <button class="modal-close" onclick="closeModal('deleteModal')"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="delete-icon" style="margin:0 auto 16px"><i class="bi bi-trash3"></i></div>
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:8px">Delete Package?</h3>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:4px">
+      You are about to delete <strong id="deletePackageName"></strong>.
+    </p>
+    <p style="font-size:12.5px;color:var(--text-muted)">This action cannot be undone.</p>
+    <div style="display:flex;gap:10px;margin-top:24px">
+      <button class="btn-ghost" style="flex:1;justify-content:center" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="btn-primary-cafei" style="flex:1;justify-content:center;background:#f43f5e" onclick="confirmDelete()">
+        <i class="bi bi-trash3"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     TOAST
+════════════════════════════════════ -->
+<div id="toast" style="
+  position:fixed; bottom:24px; right:24px;
+  background:#111827; color:#fff;
+  border-radius:12px; padding:12px 18px;
+  font-size:13px; font-weight:500;
+  display:none; align-items:center; gap:9px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.2);
+  z-index:999; animation: slideUp .2s ease;
+">
+  <i class="bi bi-check-circle-fill" style="color:#10b981;font-size:15px"></i>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<script>
+  let deleteTargetId = null;
+
+  /* ── Modal helpers ── */
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  /* Close on backdrop click */
+  document.querySelectorAll('.modal-backdrop-custom').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+  });
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.style.display = 'flex';
+    setTimeout(() => { t.style.display = 'none'; }, 3000);
+  }
+
+  /* ── ADD ── */
+  function openAddModal() {
+    document.getElementById('addForm').reset();
+    openModal('addModal');
+  }
+
+
+  /* ── EDIT ── */
+  function openEditModal(pkg) {
+    document.getElementById('editId').value      = pkg.id;
+    document.getElementById('editName').value    = pkg.name;
+    document.getElementById('editTier').value    = pkg.tier;
+    document.getElementById('editPrice').value   = pkg.price;
+    document.getElementById('editBilling').value = pkg.billing;
+    document.getElementById('editLimit').value   = pkg.limit;
+    document.getElementById('editDesc').value    = pkg.desc;
+    document.getElementById('editStatus').value  = pkg.status;
+    openModal('editModal');
+  }
+
+  function handleEdit(e) {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    // TODO: PUT /packages/:id  →  fetch(`/packages/${fd.get('id')}`, { method:'PUT', body: fd })
+    closeModal('editModal');
+    showToast('Package updated successfully');
+  }
+
+  /* ── DELETE ── */
+  function openDeleteModal(id, name) {
+    deleteTargetId = id;
+    document.getElementById('deletePackageName').textContent = name;
+    openModal('deleteModal');
+  }
+
+  function confirmDelete() {
+    // TODO: DELETE /packages/:id  →  fetch(`/packages/${deleteTargetId}`, { method:'DELETE' })
+    closeModal('deleteModal');
+    showToast('Package deleted');
+    deleteTargetId = null;
+  }
+
+  /* ── FILTER / SEARCH ── */
+  function filterTable() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const tier   = document.getElementById('tierFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    const rows   = document.querySelectorAll('#pkgTableBody tr');
+    let visible  = 0;
+
+    rows.forEach(row => {
+      const text   = row.textContent.toLowerCase();
+      const rTier  = row.dataset.tier   || '';
+      const rStatus = row.dataset.status || '';
+      const match  =
+        text.includes(search) &&
+        (tier   === '' || rTier   === tier) &&
+        (status === '' || rStatus === status);
+      row.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+
+    document.getElementById('emptyState').style.display = visible === 0 ? 'flex' : 'none';
+    document.getElementById('pkgCount').textContent = `${visible} package${visible !== 1 ? 's' : ''}`;
+  }
+</script>

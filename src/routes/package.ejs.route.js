@@ -4,8 +4,8 @@ import { showCreatePackage, ejsPostPackage, listPackages } from '../controllers/
 
 const router = Router();
 
-router.get('/',  requireSession, showCreatePackage);  // GET  /packages/create
-router.post('/',       requireSession, ejsPostPackage);     // POST /packages
+router.get('/', showCreatePackage);  // GET  /packages/create
+router.post('/', ejsPostPackage);     // POST /packages
 router.get('/list_packages',       listPackages);     // POST /packages
 
 export default router;
