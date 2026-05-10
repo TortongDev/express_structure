@@ -471,19 +471,8 @@
       <button class="modal-close" onclick="closeModal('addModal')"><i class="bi bi-x"></i></button>
     </div>
 
-    <form id="addForm" onsubmit="handleAdd(event)">
+    <form id="addForm" action="/users/register" method="POST">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <div class="form-group">
-        <label class="form-label">Package Name *</label>
-        <select class="form-control-custom" name="name" required>
-          <option value="">Select package…</option>
-          <% package_list.forEach(pkg => { %>
-            <option value="<%= pkg.name %>"><%= pkg.name %></option>
-          <% }) %>
-        </select>
-      </div>
-      
-    
       <div class="form-group">
         <label class="form-label">Email</label>
         <input class="form-control-custom" type="email" name="email" placeholder="e.g. user@example.com">
@@ -503,18 +492,18 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">First Name</label>
-          <input class="form-control-custom" type="text" name="firstName" placeholder="e.g. John">
+          <input class="form-control-custom" type="text" name="firstname" placeholder="e.g. John">
         </div>
         <div class="form-group">
           <label class="form-label">Last Name</label>
-          <input class="form-control-custom" type="text" name="lastName" placeholder="e.g. Doe">
+          <input class="form-control-custom" type="text" name="lastname" placeholder="e.g. Doe">
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Role</label>
         <select class="form-control-custom" name="role">
-          <option value="admin">Admin</option>
-          <option value="staff">STAFF</option>
+          <option value="ADMIN">Admin</option>
+          <option value="STAFF">Staff</option>
         </select>
       </div>
       <div class="form-footer">
