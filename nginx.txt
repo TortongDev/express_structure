@@ -1,0 +1,218 @@
+# ==============================================================================
+# nginx.txt — Standard Nginx Reverse Proxy Configuration
+# โดเมนที่รองรับ:
+#   - backoffice.powerspecial.online  → Node.js app port 3000
+#   - client.powerspecial.online      → Node.js app port 5000
+#
+# วิธีใช้งาน:
+#   1. คัดลอกแต่ละ server block ไปไว้ที่ /etc/nginx/sites-available/<domain>
+#   2. สร้าง symlink: sudo ln -s /etc/nginx/sites-available/<domain> /etc/nginx/sites-enabled/
+#   3. ทดสอบ config: sudo nginx -t
+#   4. Reload nginx: sudo systemctl reload nginx
+#
+# หมายเหตุ SSL:
+#   ก่อนติดตั้ง SSL ให้ใช้ HTTP block (port 80) เพียงอย่างเดียวก่อน
+#   หลังติดตั้ง SSL ด้วย Certbot แล้ว ให้ uncomment ส่วน HTTPS block (port 443)
+#   และ uncomment redirect block ใน port 80
+# ==============================================================================
+
+
+# ==============================================================================
+# [backoffice.powerspecial.online] → Node.js port 3000
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# HTTP (port 80) — ใช้ก่อนติดตั้ง SSL หรือสำหรับ Let's Encrypt challenge
+# ------------------------------------------------------------------------------
+server {
+    listen 80;
+    listen [::]:80;
+    server_name backoffice.powerspecial.online;
+
+    # [ก่อน SSL] — ให้ uncomment บรรทัดนี้เพื่อ redirect ไป HTTPS หลังติดตั้ง SSL แล้ว
+    # return 301 https://$host$request_uri;
+
+    # [ใช้ตอนยังไม่มี SSL] — proxy pass ไปยัง Node.js โดยตรง
+    # ลบออกเมื่อเปิดใช้ HTTPS redirect ด้านบนแล้ว
+    location / {
+        proxy_pass         http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        'upgrade';
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+
+        # ป้องกัน timeout เมื่อ request ใช้เวลานาน
+        proxy_read_timeout  60s;
+        proxy_send_timeout  60s;
+        proxy_connect_timeout 10s;
+    }
+
+    # อนุญาตให้ Certbot ยืนยัน domain เพื่อออก SSL certificate
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+}
+
+# ------------------------------------------------------------------------------
+# HTTPS (port 443) — [ปิดอยู่] uncomment หลังติดตั้ง SSL ด้วย Certbot แล้ว
+# ติดตั้ง SSL: sudo certbot --nginx -d backoffice.powerspecial.online
+# ------------------------------------------------------------------------------
+# server {
+#     listen 443 ssl http2;
+#     listen [::]:443 ssl http2;
+#     server_name backoffice.powerspecial.online;
+#
+#     # --- SSL Certificate (ออกโดย Let's Encrypt / Certbot) ---
+#     ssl_certificate     /etc/letsencrypt/live/backoffice.powerspecial.online/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/backoffice.powerspecial.online/privkey.pem;
+#     include             /etc/letsencrypt/options-ssl-nginx.conf;
+#     ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
+#
+#     # --- Security Headers ---
+#     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+#     add_header X-Frame-Options            "SAMEORIGIN"              always;
+#     add_header X-Content-Type-Options     "nosniff"                 always;
+#     add_header X-XSS-Protection           "1; mode=block"           always;
+#     add_header Referrer-Policy            "strict-origin-when-cross-origin" always;
+#     add_header Permissions-Policy         "geolocation=(), microphone=(), camera=()" always;
+#
+#     # --- ซ่อน Nginx version จาก header ---
+#     server_tokens off;
+#
+#     # --- Rate Limiting (ป้องกัน brute-force / DDoS เบื้องต้น) ---
+#     # ต้องประกาศ limit_req_zone ใน http block ของ nginx.conf ก่อน:
+#     # limit_req_zone $binary_remote_addr zone=backoffice_limit:10m rate=30r/m;
+#     limit_req zone=backoffice_limit burst=20 nodelay;
+#
+#     # --- Proxy ไปยัง Node.js ---
+#     location / {
+#         proxy_pass         http://127.0.0.1:3000;
+#         proxy_http_version 1.1;
+#         proxy_set_header   Upgrade           $http_upgrade;
+#         proxy_set_header   Connection        'upgrade';
+#         proxy_set_header   Host              $host;
+#         proxy_set_header   X-Real-IP         $remote_addr;
+#         proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+#         proxy_set_header   X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#         proxy_read_timeout  60s;
+#         proxy_send_timeout  60s;
+#         proxy_connect_timeout 10s;
+#
+#         # ขนาด body สูงสุด (ปรับตามความต้องการ)
+#         client_max_body_size 10M;
+#     }
+#
+#     # --- Block การเข้าถึง hidden files (.env, .git ฯลฯ) ---
+#     location ~ /\. {
+#         deny all;
+#         return 404;
+#     }
+# }
+
+
+# ==============================================================================
+# [client.powerspecial.online] → Node.js port 5000
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# HTTP (port 80) — ใช้ก่อนติดตั้ง SSL หรือสำหรับ Let's Encrypt challenge
+# ------------------------------------------------------------------------------
+server {
+    listen 80;
+    listen [::]:80;
+    server_name client.powerspecial.online;
+
+    # [ก่อน SSL] — ให้ uncomment บรรทัดนี้เพื่อ redirect ไป HTTPS หลังติดตั้ง SSL แล้ว
+    # return 301 https://$host$request_uri;
+
+    # [ใช้ตอนยังไม่มี SSL]
+    location / {
+        proxy_pass         http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        'upgrade';
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout  60s;
+        proxy_send_timeout  60s;
+        proxy_connect_timeout 10s;
+    }
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+}
+
+# ------------------------------------------------------------------------------
+# HTTPS (port 443) — [ปิดอยู่] uncomment หลังติดตั้ง SSL ด้วย Certbot แล้ว
+# ติดตั้ง SSL: sudo certbot --nginx -d client.powerspecial.online
+# ------------------------------------------------------------------------------
+# server {
+#     listen 443 ssl http2;
+#     listen [::]:443 ssl http2;
+#     server_name client.powerspecial.online;
+#
+#     ssl_certificate     /etc/letsencrypt/live/client.powerspecial.online/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/client.powerspecial.online/privkey.pem;
+#     include             /etc/letsencrypt/options-ssl-nginx.conf;
+#     ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
+#
+#     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+#     add_header X-Frame-Options            "SAMEORIGIN"              always;
+#     add_header X-Content-Type-Options     "nosniff"                 always;
+#     add_header X-XSS-Protection           "1; mode=block"           always;
+#     add_header Referrer-Policy            "strict-origin-when-cross-origin" always;
+#     add_header Permissions-Policy         "geolocation=(), microphone=(), camera=()" always;
+#
+#     server_tokens off;
+#
+#     # limit_req_zone $binary_remote_addr zone=client_limit:10m rate=60r/m;
+#     limit_req zone=client_limit burst=30 nodelay;
+#
+#     location / {
+#         proxy_pass         http://127.0.0.1:5000;
+#         proxy_http_version 1.1;
+#         proxy_set_header   Upgrade           $http_upgrade;
+#         proxy_set_header   Connection        'upgrade';
+#         proxy_set_header   Host              $host;
+#         proxy_set_header   X-Real-IP         $remote_addr;
+#         proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+#         proxy_set_header   X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#         proxy_read_timeout  60s;
+#         proxy_send_timeout  60s;
+#         proxy_connect_timeout 10s;
+#         client_max_body_size 10M;
+#     }
+#
+#     location ~ /\. {
+#         deny all;
+#         return 404;
+#     }
+# }
+
+
+# ==============================================================================
+# [nginx.conf — http block] เพิ่มบรรทัดเหล่านี้ใน /etc/nginx/nginx.conf
+# ภายใน http { ... } เพื่อให้ rate limiting ด้านบนทำงานได้
+# ==============================================================================
+# http {
+#     ...
+#     server_tokens off;                         # ซ่อน nginx version
+#     client_max_body_size 10M;                  # จำกัดขนาด request body
+#     keepalive_timeout 65;                       # ป้องกัน idle connection นานเกินไป
+#
+#     # Rate limit zones (ประกาศที่นี่เพียงครั้งเดียว แล้วใช้ใน server block)
+#     limit_req_zone $binary_remote_addr zone=backoffice_limit:10m rate=30r/m;
+#     limit_req_zone $binary_remote_addr zone=client_limit:10m rate=60r/m;
+#     ...
+# }
+
